@@ -1,0 +1,23 @@
+{
+  "name": "pb-28220",
+  "description": "Repositorio para la cursada de programacion backend camada 28220",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedroslev/pb-28220.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pedroslev/pb-28220/issues"
+  },
+  "homepage": "https://github.com/pedroslev/pb-28220#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "nodemon": "^2.0.15"
+  }
+}
