@@ -19,24 +19,25 @@ app.use(express.static('public'))
 app.use(express.static('views'))
 
 //----------------------------PLANTILLAS----------------------------
-//HANDLEBARS
+//-------------HANDLEBARS
 //CONFIGURACION DE HANDLEBARS
-app.set('views', path.join(__dirname, 'views'));
+/*app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', exphbs.engine({
     defaultLayout: 'main',
     layoutDir: path.join(app.get('views'), 'layouts'),
     partialsDir: path.join(app.get('views'), 'partials'),
     extname: 'hbs'
-}))
+}))*/
 //HANDLEBARS:
-app.set('view engine', 'hbs');
+//app.set('view engine', 'hbs');
 
 //------------------------------------------------------------------
 
 
-//PUG
-//app.set('views', './views')
-//app.set('view engine', 'pug');
+//-------------PUG
+//config
+app.set('views', path.join('views'))
+app.set('view engine', 'pug');
 
 
 //FUNCIONALIDAD
@@ -81,8 +82,9 @@ router.post('/', (req, res) => {
     productos.push(producto);
     console.log(producto);
     //HANDLEBARS
-    res.render('plantilla', producto)
-    
+    //res.render('plantilla', producto)
+    //PUG
+    res.render('index', producto)
 })
 
 
