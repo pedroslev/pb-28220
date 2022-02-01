@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 //handlebars
 const exphbs = require('express-handlebars');
 const path = require('path');
+const ejs = require('ejs')
 
 //instancia express
 const app = express();
@@ -33,11 +34,16 @@ app.engine('hbs', exphbs.engine({
 
 //------------------------------------------------------------------
 
-
 //-------------PUG
 //config
+//app.set('views', path.join('views'))
+//app.set('view engine', 'pug');
+
+//------------------------------------------------------------------
+//-------------EJS
+//config
 app.set('views', path.join('views'))
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 
 
 //FUNCIONALIDAD
