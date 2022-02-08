@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frontend</title>
     <link rel="stylesheet" href="./css/style.css">
+    <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-    <div class="formulario" >
+  
+<div class="formulario" >
         <form action="/api/productos" method="POST">
+          <h2>Carga de Productos</h2>
             <div class="mb-3">
               <label for="title" class="form-label">Titulo</label>
               <input type="name" class="form-control" name="title" id="title">
@@ -22,13 +25,39 @@
                 <label for="thumbnail" class="form-label">Foto</label>
                 <input type="name" class="form-control" name="thumbnail" id="thumbnail">
               </div>
-            <button type="submit" class="btn btn-primary">Agregar</button>
-            <form action="/api/productos" method="GET">
+            <button type="submit" class="btn btn-primary" id="Agregar">Agregar</button>
+            <!-- <form action="/api/productos" method="GET">
                 <button type="submit" class="btn btn-primary">Mostrar</button>
-            </form>
+            </form> -->
           </form>
     </div>
+    <hr>
+    <h2>Listado de Productos</h2>
+    <div class="productos" id="productos">
+
+      </div>
+     
+    </div>
+
+
+    <hr>
+
+    <form action="">
+      <div class="input-group mb-3 chat">  
+        <h2>Chat</h2>
+        <div>
+          <input type="text" class="form-control" id="email" placeholder="Email" aria-describedby="basic-addon1">
+        </div>
+        <div>
+          <input type="text" class="form-control" id="mensaje" placeholder="Mensaje" aria-describedby="basic-addon1">
+        </div>
+        <button class="btn btn-success" id="enviar">Enviar</button>
+      </div>
+    </form>
     
+    <p id="mensajeria"></p>
+    
+    <script src="./js/index.js"></script>
 </body>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 </html>

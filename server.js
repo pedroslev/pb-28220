@@ -1,63 +1,22 @@
 //----------------------------MODULOS----------------------------
 const fs = require('fs')
 const express = require('express');
+const { Server: HttpServer } = require('http')
+const { Server: IOServer } = require('socket.io')
 const router = express.Router();
-const bodyParser = require('body-parser')
-//handlebars
-const exphbs = require('express-handlebars');
-const path = require('path');
+const bodyParser = require('body-parser');
+const { nextTick } = require('process');
 
 //instancia express
 const app = express();
-
+const httpServer = new HttpServer(app)
+const io = new IOServer(httpServer)
 
 //----------------------------Middlewares----------------------------
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.json())
 router.use(express.json())
 app.use(express.static('public'))
-app.use(express.static('views'))
-
-//----------------------------PLANTILLAS----------------------------
-//-------------HANDLEBARS
-//CONFIGURACION DE HANDLEBARS
-/*app.set('views', path.join(__dirname, 'views'));
-app.engine('hbs', exphbs.engine({
-    defaultLayout: 'main',
-    layoutDir: path.join(app.get('views'), 'layouts'),
-    partialsDir: path.join(app.get('views'), 'partials'),
-    extname: 'hbs'
-}))*/
-//HANDLEBARS:
-//app.set('view engine', 'hbs');
-
-//------------------------------------------------------------------
-
-
-//-------------PUG
-//config
-app.set('views', path.join('views'))
-app.set('view engine', 'pug');
-
-
-//FUNCIONALIDAD
-app.engine('html', async (filePath, options, callback)=>{
-    try {
-     const contenido = await fs.promises.readFile(filePath);
-     const htmlGenerado = contenido.toString()
-                                    .replace('$$id$$', options.id)
-                                    .replace('$$title$$', options.title)
-                                    .replace('$$price$$', options.price)
-                                    .replace('$$thumbnail$$', options.thumbnail);
-    
-     callback(null, htmlGenerado)
-    } catch (error) {
-        callback(new Error(error), null)
-    }
-})
-
-//FIN HANDLEBARS
-
 
 
 //----------------------------RUTAS----------------------------
@@ -68,7 +27,7 @@ let productos = [];
 router.get('/', (req, res) => {
     if(productos.length===0){res.send('no hay productos')}else{
         res.json(productos);
-    //res.render('plantilla', productos)
+    
     }
 });
 
@@ -81,19 +40,37 @@ router.post('/', (req, res) => {
     }
     productos.push(producto);
     console.log(producto);
-    //HANDLEBARS
-    //res.render('plantilla', producto)
-    //PUG
-    res.render('index', producto)
+    //res.json(producto)
+    res.redirect('/')
+    //res.status(200)
+})
+
+
+//----------------------------Sockets----------------------------
+const mensajes = []
+
+io.on('connection', socket => {
+    console.log('user connection established successfully')
+
+    /* Envio los mensajes al cliente que se conectó */
+    socket.emit('mensajes', mensajes)
+
+    /* Escucho los mensajes enviado por el cliente y se los propago a todos */
+    socket.on('mensaje', data => {
+        mensajes.push({ email: data, mensaje: data })
+        io.sockets.emit('mensajes', mensajes)
+    })
+
+    socket.emit('productos', productos)
+
+    socket.on('productos', data => {
+        productos.push({title: data, price: data, thumbnail: data})
+        io.sockets.emit('productos', productos)
+    })
 })
 
 
 //----------------------------SERVER----------------------------
 const PORT = 8080;
-const server = app.listen(PORT, () => {
-    console.log(`server up on port ${PORT}`);
-})
-server.on('error', error => {
-    console.error(`Error bringing up the proyect ${error}`);
-})
+httpServer.listen(PORT, () => console.log('Server on!'))
 

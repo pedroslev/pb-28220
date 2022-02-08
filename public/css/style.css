@@ -1,5 +1,23 @@
 .formulario{
     display: flex;
     justify-content: center;
-    padding-top: 10em;
+    padding-top: 2.5em;
+    padding-bottom: 2.5em;
+}
+
+.chat{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 2.5em;    
+}
+
+.productos{
+    display: flex;
+    flex-direction: row;
+}
+
+.producto{
+    padding: 1em;
+    margin: 0.2em;
 }
