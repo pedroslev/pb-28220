@@ -1,13 +1,13 @@
 const socket = io.connect();
 
 //productos
-const title = document.getElementById('title').value
-const price = document.getElementById('price').value
-const thumbnail = document.getElementById('thumbnail').value
+const title = document.getElementById('title')
+const price = document.getElementById('price')
+const thumbnail = document.getElementById('thumbnail')
 
 
 document.getElementById('Agregar').addEventListener('click', () => {
-    socket.emit('productos',  {title: title, price: price, thumbnail: thumbnail});
+    socket.emit('productos',  {title: title.value, price: price.value, thumbnail: thumbnail.value});
 })
 socket.on('productos', prods => {
     const prodsHTML = prods
@@ -31,8 +31,9 @@ document.getElementById('enviar').addEventListener('click', () => {
     socket.emit('mensaje',  {mensaje: input.value, email: email.value});
 })
 socket.on('mensajes', msjs => {
+    let timestamp = Date().toString()
     const mensajesHTML = msjs
-        .map(msj => `${msj.email.email} -> ${msj.mensaje.mensaje}`)
+        .map(msj => `<div class="mensajeriadiv"><p class="email">${msj.email.email}  </p><p class="timestamp"> [${timestamp}]  -> </p><p class="message">  ${msj.mensaje.mensaje}</p></div>`)
         .join('<br>')
     document.getElementById('mensajeria').innerHTML = mensajesHTML
 });

@@ -21,3 +21,21 @@
     padding: 1em;
     margin: 0.2em;
 }
+
+.mensajeriadiv{
+    display: flex;
+    flex-direction: row;
+}
+
+.email{
+    font-weight: 1em;
+    color: blue;
+}
+
+.message{
+    color: green;
+}
+
+.timestamp{
+    color: red;
+}

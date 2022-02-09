@@ -38,7 +38,7 @@ router.post('/', (req, res) => {
         price: req.body.price,
         thumbnail: req.body.thumbnail
     }
-    productos.push(producto);
+    //productos.push(producto);
     console.log(producto);
     //res.json(producto)
     res.redirect('/')
