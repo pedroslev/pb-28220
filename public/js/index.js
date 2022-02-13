@@ -1,4 +1,4 @@
-const socket = io.connect();
+/*const socket = io.connect();
 
 //productos
 const title = document.getElementById('title')
@@ -36,4 +36,5 @@ socket.on('mensajes', msjs => {
         .map(msj => `<div class="mensajeriadiv"><p class="email">${msj.email.email}  </p><p class="timestamp"> [${timestamp}]  -> </p><p class="message">  ${msj.mensaje.mensaje}</p></div>`)
         .join('<br>')
     document.getElementById('mensajeria').innerHTML = mensajesHTML
-});
+})
+*/
