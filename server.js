@@ -7,7 +7,7 @@ const router = express.Router()
 const prods = express.Router()
 const cart = express.Router()
 const bodyParser = require('body-parser');
-const { nextTick } = require('process');
+const { nextTick, send } = require('process');
 const { createPublicKey } = require('crypto');
 const { CHAR_ZERO_WIDTH_NOBREAK_SPACE } = require('picomatch/lib/constants');
 
@@ -59,64 +59,89 @@ prods.get('/:id', (req, res) => {
     });
 
 //CREACION DE NUEVO PROD
-prods.post('/', (req, res) => {
-    let producto = {
-        id: productos.length + 1,
-        title: req.body.title,
-        price: req.body.price,
-        thumbnail: req.body.thumbnail
+prods.post('/:admin', (req, res) => {
+    const admin = parseInt(req.params.admin)
+    if(admin){
+        let producto = {
+            id: productos.length + 1,
+            timestamp: Date.now(),
+            title: req.body.title,
+            description: req.body.description,
+            code: req.body.code,
+            price: req.body.price,
+            thumbnail: req.body.thumbnail,
+            stock: req.body.stock
+        }
+        try {
+            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
+            data = JSON.parse(data)
+            console.log(data)
+            let id = data.length;
+            producto.id = id;
+            productos.push(producto);
+            console.log(producto);
+            data.push(producto)
+            fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
+            res.redirect('/')
+        } catch (error) {
+            console.error(`Ha ocurrido un error inesperado: ${error}`)
+        }
+    }else{
+        res.send(`Esta accion esta solo permitida para administradores`)
     }
-    try {
-        let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-        data = JSON.parse(data)
-        console.log(data)
-        let id = data.length;
-        producto.id = id;
-        productos.push(producto);
-        console.log(producto);
-        data.push(producto)
-        fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-        res.redirect('/')
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
+    
 })
 
 //PROD EDICION    
-prods.put('/:id', (req, res) => {
-    const id = parseInt(req.params.id)
-    if(isNaN(id)){res.send({error: 'El parametro ingresado no es un numero'})}
-    try {
-        let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-        data = JSON.parse(data)
-        if(id > data.length){res.send({error: 'El parametro ingresado esta fuera de rango'})}
-        data[id].title = req.body.title;
-        data[id].price = req.body.price;
-        data[id].thumnail = req.body.thumnail;
-        fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-        console.log(`Producto de id ${id} actualizado con exito`)
-        res.redirect('/')
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
+prods.put('/:id:admin', (req, res) => {
+    const admin = parseInt(req.params.admin)
+    if(admin){
+        const id = parseInt(req.params.id)
+        if(isNaN(id)){res.send({error: 'El parametro ingresado no es un numero'})}
+        try {
+            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
+            data = JSON.parse(data)
+            if(id > data.length){res.send({error: 'El parametro ingresado esta fuera de rango'})}
+            data[id].title = req.body.title;
+            data[id].description = req.body.description;
+            data[id].code = req.body.code;
+            data[id].price = req.body.price;
+            data[id].thumnail = req.body.thumnail;
+            data[id].stock = req.body.stock;
+            fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
+            console.log(`Producto de id ${id} actualizado con exito`)
+            res.redirect('/')
+        } catch (error) {
+            console.error(`Ha ocurrido un error inesperado: ${error}`)
+        }
+    }else{
+        res.send(`Esta accion esta solo permitida para administradores`)
     }
+    
 })
 
 //PROD DELETE
-prods.delete('/id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id)
-        let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-        data = JSON.parse(data)
-        if(id > data.length){res.send(`No existe tal id en productos`)}
-        else{
-            data = data.filter(data => data.id != id)
-            fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-            console.log(`Producto eliminado con exito`)
-            res.redirect('/')
+prods.delete('/:id:admin', (req, res) => {
+    const admin = parseInt(req.params.admin)
+    if(admin){
+        try {
+            const id = parseInt(req.params.id)
+            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
+            data = JSON.parse(data)
+            if(id > data.length){res.send(`No existe tal id en productos`)}
+            else{
+                data = data.filter(data => data.id != id)
+                fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
+                console.log(`Producto eliminado con exito`)
+                res.redirect('/')
+            }
+        } catch (error) {
+            console.error(`Ha ocurrido un error inesperado: ${error}`)
         }
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
+    }else{
+        res.send(`Esta accion esta solo permitida para administradores`)
     }
+    
 })
 
 //-----CARRITO ROUTE
@@ -127,6 +152,7 @@ let carros = []
 cart.post('/', (req, res) => {
     let carro = {
         id: carros.length + 1,
+        timestamp: Date.now(),
         prods: []
     }
     try {
