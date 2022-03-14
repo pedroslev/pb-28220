@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const { nextTick, send } = require('process');
 const { createPublicKey } = require('crypto');
 const { CHAR_ZERO_WIDTH_NOBREAK_SPACE } = require('picomatch/lib/constants');
+import './DAOS/daos.js';
 
 //instancia express
 const app = express();
@@ -89,7 +90,6 @@ prods.post('/:admin', (req, res) => {
     }else{
         res.send(`Esta accion esta solo permitida para administradores`)
     }
-    
 })
 
 //PROD EDICION    
@@ -110,6 +110,10 @@ prods.put('/:id:admin', (req, res) => {
             data[id].stock = req.body.stock;
             fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
             console.log(`Producto de id ${id} actualizado con exito`)
+            //mongo
+            const prodMongo = new model.productos(data)
+            let prodSave = await prodMongo.save()
+            console.log(prodSave)
             res.redirect('/')
         } catch (error) {
             console.error(`Ha ocurrido un error inesperado: ${error}`)
@@ -117,7 +121,6 @@ prods.put('/:id:admin', (req, res) => {
     }else{
         res.send(`Esta accion esta solo permitida para administradores`)
     }
-    
 })
 
 //PROD DELETE
@@ -164,6 +167,11 @@ cart.post('/', (req, res) => {
         data.push(carro);
         console.log(carro);
         fs.promises.writeFile('./storage/carritos.json', JSON.stringify(data, null, 2))
+        //firebase
+        const db = admin.firestore()
+        const query = db.collection('mensajes')
+        doc = query.doc(`${id}`)
+        await doc.create(carro)
         res.redirect('/')
     } catch (error) {
         console.error(`Ha ocurrido un error inesperado: ${error}`)
