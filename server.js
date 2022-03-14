@@ -169,7 +169,7 @@ cart.post('/', (req, res) => {
         fs.promises.writeFile('./storage/carritos.json', JSON.stringify(data, null, 2))
         //firebase
         const db = admin.firestore()
-        const query = db.collection('mensajes')
+        const query = db.collection('carro')
         doc = query.doc(`${id}`)
         await doc.create(carro)
         res.redirect('/')
