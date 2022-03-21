@@ -19,7 +19,7 @@ app.use(express.static('public'))
 
 //----------------------------FAKER PRODS----------------------------
 import { generarProductos } from './faker';
-for (let index = 0; index < array.length; index++) {
+for (let index = 0; index < 10; index++) {
     let prodsrandom;
     prodsrandom[index] = generarProductos(index);    
 }
