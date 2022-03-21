@@ -26,14 +26,28 @@ socket.on('productos', prods => {
 
 // mensajeria
 const input = document.getElementById('mensaje')
-const email = document.getElementById('email')
+const nombre = document.getElementById('nombre')
+const apellido = document.getElementById('apellido')
+const edad = document.getElementById('edad')
+const alias = document.getElementById('alias')
+const avatar = document.getElementById('avatar')
 document.getElementById('enviar').addEventListener('click', () => {
-    socket.emit('mensaje',  {mensaje: input.value, email: email.value});
+    socket.emit('mensaje',  {
+        author:{
+            id: 1,
+            nombre: nombre.value,
+            apellido: apellido.value,
+            edad: edad.value,
+            alias: alias.value,
+            avatar: avatar.value,       
+        },
+        text: input.value,
+    });
 })
 socket.on('mensajes', msjs => {
     let timestamp = Date().toString()
     const mensajesHTML = msjs
-        .map(msj => `<div class="mensajeriadiv"><p class="email">${msj.email.email}  </p><p class="timestamp"> [${timestamp}]  -> </p><p class="message">  ${msj.mensaje.mensaje}</p></div>`)
+        .map(msj => `<div class="mensajeriadiv"><p class="email">${msj.nombre.nombre}  </p><p class="timestamp"> [${timestamp}]  -> </p><p class="message">  ${msj.mensaje.mensaje}</p></div>`)
         .join('<br>')
     document.getElementById('mensajeria').innerHTML = mensajesHTML
 });
