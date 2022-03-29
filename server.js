@@ -2,94 +2,62 @@
 const fs = require('fs')
 const express = require('express');
 const { Server: HttpServer } = require('http')
-const { Server: IOServer } = require('socket.io')
 const router = express.Router();
 const bodyParser = require('body-parser');
-const { nextTick } = require('process');
 //instancia express
 const app = express();
 const httpServer = new HttpServer(app)
-const io = new IOServer(httpServer)
+const MongoStore = require('connect-mongo')
+const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true }
+
 
 //----------------------------Middlewares----------------------------
 app.use(bodyParser.urlencoded({extended: true}))
-app.use(express.json())
-router.use(express.json())
 app.use(express.static('public'))
-
-//----------------------------FAKER PRODS----------------------------
-import { generarProductos } from './faker';
-for (let index = 0; index < 10; index++) {
-    let prodsrandom;
-    prodsrandom[index] = generarProductos(index);    
-}
+const session = require('express-session');
+const { reset } = require('nodemon');
 
 
+
+//----------------------------SESSION----------------------------
+app.use(session ({
+
+    store: MongoStore.create({
+        mongoUrl: 'mongodb://coderuser:coderpass@cluster0-shard-00-00.6xxqq.mongodb.net:27017,cluster0-shard-00-01.6xxqq.mongodb.net:27017,cluster0-shard-00-02.6xxqq.mongodb.net:27017/session?ssl=true&replicaSet=atlas-nr9qdl-shard-0&authSource=admin&retryWrites=true&w=majority',
+        mongoOptions: advancedOptions
+    }),
+    secret: '45ADH45',
+    resave: false,
+    saveUninitialized: false
+}))
 
 //----------------------------RUTAS----------------------------
 //PRODUCTOS
-app.use('/api/productos', router);
-app.use('/api/productos-test', test)
-let productos = [];
+app.use('/', router);
 
-//ruta de faker.js
-test.get('/', (req, res) => {
-    res.json(prodsrandom);
+router.get('/login', (req, res) => {
+const {username, password } = req.query;
+if (username !== 'admin' || password !== 'admin') {
+    return res.send('login failed')
+  }
+ 
+req.session.user = username
+req.session.admin = true
+res.send(`bienvenido ${username}`);
 });
 
-router.get('/', (req, res) => {
-    if(productos.length===0){res.send('no hay productos')}else{
-        res.json(productos);
+
+router.get('/logout', (req, res) => {
+    let username = req.session.user
+   req.session.destroy(err => {
+       if(err){
+           return res.json({status: 'logout err', body: err})
+       }
+       res.send(`adios ${username}`)
+   })
+    });
     
-    }
-});
 
-router.post('/', (req, res) => {
-    let producto = {
-        //id not needed bc DB got autoincremental
-//        id: productos.length + 1,
-        title: req.body.title,
-        price: req.body.price,
-        thumbnail: req.body.thumbnail
-    }
-    //productos.push(producto);
-    console.log(producto);
-    //res.json(producto)
-    res.redirect('/')
-    //res.status(200)
-})
-
-//----------------------------Sockets----------------------------
-const mensajes = []
-io.on('connection', socket => {
-    console.log('user connection established successfully')
-
-    /* Envio los mensajes al cliente que se conectó */
-    socket.emit('mensajes', mensajes)
-
-    /* Escucho los mensajes enviado por el cliente y se los propago a todos */
-    socket.on('mensaje', data => {
-        mensajes.push({ 
-            author:{
-                id: data,
-                nombre: data,
-                apellido: data,
-                edad: data,
-                alias: data,
-                avatar: data,       
-            },
-            text: data,
-        })
-        io.sockets.emit('mensajes', mensajes)
-    })
-
-    socket.emit('productos', productos)
-
-    socket.on('productos', data => {
-        productos.push({title: data, price: data, thumbnail: data})
-        io.sockets.emit('productos', productos)
-    })
-})
 //----------------------------SERVER----------------------------
 const PORT = 8080;
 httpServer.listen(PORT, () => console.log('Server on!'))

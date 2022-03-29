@@ -1,41 +1,12 @@
-.formulario{
+.login{
     display: flex;
     justify-content: center;
-    padding-top: 2.5em;
-    padding-bottom: 2.5em;
+    margin-top: 10em;
 }
 
-.chat{
+.log{
+    background-color: rgb(92, 92, 92);
+    height: 5em;
     display: flex;
-    flex-direction: column;
     justify-content: center;
-    padding-top: 2.5em;    
-}
-
-.productos{
-    display: flex;
-    flex-direction: row;
-}
-
-.producto{
-    padding: 1em;
-    margin: 0.2em;
-}
-
-.mensajeriadiv{
-    display: flex;
-    flex-direction: row;
-}
-
-.email{
-    font-weight: 1em;
-    color: blue;
-}
-
-.message{
-    color: green;
-}
-
-.timestamp{
-    color: red;
 }
