@@ -9,15 +9,8 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<div id="alert" class="container-fluid log">
-  <form method="GET" action="/logout">
-    <button type="submit" class="btn btn-danger">Logout</button>
-  </form>
-  
-
-</div>
 <div class="container login">
-  <form method="GET" action="/login">
+  <form method="GET" action="/auth/facebook">
     <div class="row mb-3">
       <label for="username" class="col-md-5 col-form-label">Username</label>
       <div class="col-sm-10">
@@ -31,6 +24,9 @@
       </div>
     </div>
       <button type="submit" class="btn btn-primary ">Sign in</button>
+      <form method="GET" action="/logout">
+        <button type="submit" class="btn btn-danger">Logout</button>
+      </form>
     
   </form>
 

@@ -16,7 +16,22 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static('public'))
 const session = require('express-session');
 const { reset } = require('nodemon');
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
 
+
+//----------------------------FACEBOOK SESSION----------------------------
+passport.use(new FacebookStrategy({
+    ClientID: 351979223622992,
+    clientSecret: 'fedfbc6085c8cb9725023da044220018',
+    callbackURL: "https://www.facebook.com/auth/facebook/callback", //entiendo a que hace referencia pero no tengo tal url
+}))
+
+//rutas de auth
+app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', {successRedirect: '/',
+                                        failureRedirect: '/'}));
 
 
 //----------------------------SESSION----------------------------
