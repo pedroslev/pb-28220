@@ -22,10 +22,17 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 
 //----------------------------FACEBOOK SESSION----------------------------
 passport.use(new FacebookStrategy({
-    ClientID: 351979223622992,
+    clientID: 351979223622992,
     clientSecret: 'fedfbc6085c8cb9725023da044220018',
-    callbackURL: "https://www.facebook.com/auth/facebook/callback", //entiendo a que hace referencia pero no tengo tal url
-}))
+    callbackURL: "https://localhost:8080/auth/facebook/callback"
+},
+function (accessToken, refreshToken, profile, done){
+    User.findOrCreate(profile.id, function(err, user){
+        if(err){ return done(err);}
+        done(null, user);
+        })
+    }
+));
 
 //rutas de auth
 app.get('/auth/facebook', passport.authenticate('facebook'));
