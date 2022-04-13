@@ -1,8 +1,11 @@
 //----------------------------MODULOS----------------------------
 const fs = require('fs')
+const config = require('./config.js')
 const express = require('express');
 const { Server: HttpServer } = require('http')
 const router = express.Router();
+const info = express.Router();
+const random = express.Router();
 const bodyParser = require('body-parser');
 //instancia express
 const app = express();
@@ -19,11 +22,10 @@ const { reset } = require('nodemon');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 
-
 //----------------------------FACEBOOK SESSION----------------------------
 passport.use(new FacebookStrategy({
-    clientID: 351979223622992,
-    clientSecret: 'fedfbc6085c8cb9725023da044220018',
+    clientID: process.env.CLIENTID,
+    clientSecret: process.env.CLIENTSECRET,
     callbackURL: "https://localhost:8080/auth/facebook/callback"
 },
 function (accessToken, refreshToken, profile, done){
@@ -40,20 +42,52 @@ app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {successRedirect: '/',
                                         failureRedirect: '/'}));
 
-
 //----------------------------SESSION----------------------------
 app.use(session ({
-
+/*
     store: MongoStore.create({
-        mongoUrl: 'mongodb://coderuser:coderpass@cluster0-shard-00-00.6xxqq.mongodb.net:27017,cluster0-shard-00-01.6xxqq.mongodb.net:27017,cluster0-shard-00-02.6xxqq.mongodb.net:27017/session?ssl=true&replicaSet=atlas-nr9qdl-shard-0&authSource=admin&retryWrites=true&w=majority',
+        mongoUrl: 'mongodb://'+ process.env.USERBD +':'+ process.env.PASSDB +'@cluster0-shard-00-00.6xxqq.mongodb.net:27017,cluster0-shard-00-01.6xxqq.mongodb.net:27017,cluster0-shard-00-02.6xxqq.mongodb.net:27017/session?ssl=true&replicaSet=atlas-nr9qdl-shard-0&authSource=admin&retryWrites=true&w=majority',
         mongoOptions: advancedOptions
     }),
     secret: '45ADH45',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false*/
 }))
 
 //----------------------------RUTAS----------------------------
+//RANDOM
+app.use('/random', random)
+
+app.post('/', (req,res) => {
+    const cant = req.body.cant
+    let dev = []
+    if(cant = NULL){
+        for (let index = 0; index < 100000000; index++) {
+            dev.push(Math.random(1,1000))
+        }
+    }else{
+        for (let index = 0; index < cant; index++) {
+            dev.push(Math.random(1,1000))
+        }
+    }
+    res.send(cant)
+})
+
+//INFO
+app.use('/info', info)
+
+router.get('/', (req, res) => {
+    res.send(`plataforma: `+process.platform+      
+        `nodejs v:`+ process.version+
+        `memPool: `+process.memoryUsage()+
+        `title: `+process.title+
+        `PID: `+process.pid+
+        `dir: `+process.cwd())
+})
+
+
+
+
 //PRODUCTOS
 app.use('/', router);
 
