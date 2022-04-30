@@ -1,0 +1,16 @@
+All virtual users finished
+Summary report @ 22:16:53(-0300) 2022-04-29
+    Scenarios launched:  50
+    Scenarios completed: 50
+    Requests completed:  2000
+    Mean response/sec" 354.28
+    Response time (msec):
+        min: 0
+        max:109
+        median: 38
+        p95: 72
+        p99: 97.4
+    Scenario counts:
+        0: 50 (100%)
+    Codes:
+     404: 2000
