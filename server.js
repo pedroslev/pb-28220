@@ -121,6 +121,6 @@ io.on('connection', socket => {
     })
 })
 //----------------------------SERVER----------------------------
-const PORT = 80;
+const PORT = process.env.PORT || 80;
 httpServer.listen(PORT, () => console.log('Server on!'))
 
