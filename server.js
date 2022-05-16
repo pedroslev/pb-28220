@@ -28,6 +28,11 @@ const nodemailer = require('nodemailer');
 const app = express();
 const httpServer = new HttpServer(app)
 
+//twilio wsp
+const accountSid = 'ACab43a42c8bfe50cc060a39708b7eb173'
+const authToken = '510844147c45baf9111f450a438e2fde'
+const client = require('twilio')(accountSid, authToken)
+
 //sessions
 app.use(session({
     secret: md5('ecompb'),
@@ -171,8 +176,23 @@ cart.get('/cartsender', (req, res) => {
                     <h1>Precios</h1>
                     ${docs.precios}`
                 }
+
+                const optionswsp = {
+                body: `Hola este es su carrito de compras: ${docs}`,
+                   from: 'whatsapp:+14155238886',
+                   to: 'whatsapp+5491161238744'
+                }
+                const optionssms = {
+                    body: `Hola este es su carrito de compras: ${docs}`,
+                       from: '+14155238886',
+                       to: '+5491161238744'
+                    }
+
                 try {
-                    const info = transporter.sendMail(mailOptions)
+                    //sending mail
+                    client.messages.create(optionswsp)
+                    client.messages.create(optionssms)
+                    //const info = transporter.sendMail(mailOptions)
                 } catch (error) {
                     loggerError.error(`Ha ocurrido un error al enviar el mail de carrito: ${error}`)
                 }
@@ -180,7 +200,7 @@ cart.get('/cartsender', (req, res) => {
         })
     
     
-     res.send(console.log(result))
+     res.redirect('/ecommerce')
 })
 
 //authentication route
