@@ -1,281 +1,226 @@
 //----------------------------MODULOS----------------------------
-const fs = require('fs')
+//server
 const express = require('express');
 const { Server: HttpServer } = require('http')
-const { Server: IOServer } = require('socket.io')
-const router = express.Router()
-const prods = express.Router()
-const cart = express.Router()
+//logger
+const log4js = require('log4js');
+//routes
+const auth = express.Router();
+const status = express.Router();
+const cart = express.Router();
 const bodyParser = require('body-parser');
-const { nextTick, send } = require('process');
-const { createPublicKey } = require('crypto');
-const { CHAR_ZERO_WIDTH_NOBREAK_SPACE } = require('picomatch/lib/constants');
-import './DAOS/daos.js';
+//mongo db requirements
+const mongoose = require('mongoose')
+const { Schema } = mongoose;
+//md5 encrypter for password
+const md5 = require('blueimp-md5')
+//auth w/ passport
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+var crypto = require('crypto');
+//sessiones
+const session = require('express-session');
+const { Cookie } = require('express-session');
+//gmail
+const nodemailer = require('nodemailer');
 
 //instancia express
 const app = express();
 const httpServer = new HttpServer(app)
-const io = new IOServer(httpServer)
+
+//sessions
+app.use(session({
+    secret: md5('ecompb'),
+    resave: false,
+    saveUninitialized: true,
+    cookie: {secure: true, sameSite: true}, 
+}))
+let sessions;
 
 //----------------------------Middlewares----------------------------
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.json())
-router.use(express.json())
 app.use(express.static('public'))
+
+//Mailer
+
+//INGRESAR SU MAIL PARA PROBAR.
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    port: 587,
+    auth: {
+        user: 'ingresarmail@gmail.com',
+        pass: 'password'
+    }
+ });
+
+
+//----------------------------Mongo DB----------------------------
+//conect with mongodb 
+try {
+    mongoose.connect('mongodb+srv://pbadmin:pbpassword@pb-28220.5wbn1.mongodb.net/PB-28220?retryWrites=true&w=majority')
+} catch (error) {
+    loggerError.error(` BBDD ||Ha ocurrido un error al conectar con la base de datos  || ${error}`)
+}
+
+//SCHEMAS
+const userSchema = new Schema ({email: String, password: String, nombre: String, edad: Number, telefono: Number })
+userSchema.path('_id');
+
+const cartSchema = new Schema ({email: String, producto: String, precio: String})
+userSchema.path('_id');
+
+//MODELS
+const users = mongoose.model('users', userSchema)
+const carts = mongoose.model('carts', cartSchema)
+//----------------------------Passport-local----------------------------
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+      users.findOne({ email: username }, function (err, user) {
+        if (err) { return done(err); }
+        if (!user) { return done(null, false); }
+        if (user.password != md5(password)) { return done(null, false); }
+        passport.serializeUser(function(user, done) {
+            done(null, user);
+          });
+          
+          passport.deserializeUser(function(user, done) {
+            done(null, user);
+          });
+        return done(null, user);
+      });
+    }
+  ));
+
+//----------------------------Log4js----------------------------
+log4js.configure({
+    appenders: {
+        LoggerConsole: {type: 'console'},
+        LoggerFileWarning: {type: 'file', filename: './log/warn.log'},
+        LoggerFileError: {type: 'file', filename: './log/error.log'}
+    },
+    categories:{
+        default: {appenders: ["LoggerConsole"], level: "trace"},
+        consola: {appenders: ["LoggerConsole"], level: "debug"},
+        error: {appenders: ["LoggerFileError"], level: "info"},
+        warning: {appenders: ["LoggerFileWarning"], level: "warn"},
+        todos: {appenders: ["LoggerConsole", "LoggerFileWarning", "LoggerFileError"], level: "error"}
+    }
+})
+const loggerInfo = log4js.getLogger('default')
+const loggerWarn = log4js.getLogger('warn')
+const loggerError = log4js.getLogger('err')
 
 
 //----------------------------RUTAS----------------------------
-//-----PRODUCTOS ROUTE
-app.use('/api/productos', prods);
-let productos = [];
+//status route
+app.use('/api/status', status)
 
+status.get('/dbconnection', (req, res) => {
+switch (mongoose.connection.readyState) {
+    case 0:
+        res.send(`DISCONNECTED`)
+    break;
 
-//GET PRODS
-prods.get('/', (req, res) => {
-try {
-    let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-        data = JSON.parse(data)
-        if(data.length===0){res.send('no hay productos')}else{
-            res.json(data);
-        }    
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
-});
+    case 1:
+        res.send(`CONNECTED`)
+    break;
 
-//GET PROD BY ID
-prods.get('/:id', (req, res) => {
-    const id = parseInt(req.params.id)
-    if(isNaN(id)){res.send({error: 'El parametro ingresado no es un numero'})}
-    try {
-        let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-            data = JSON.parse(data)
-            if(id > data.length){res.send({error: 'El parametro ingresado esta fuera de rango'})}
-            else{
-                res.json(data[id])
-            }    
-        } catch (error) {
-            console.error(`Ha ocurrido un error inesperado: ${error}`)
-        }
-    });
+    case 2:
+        res.send(`CONNECTING`)
+    break;
 
-//CREACION DE NUEVO PROD
-prods.post('/:admin', (req, res) => {
-    const admin = parseInt(req.params.admin)
-    if(admin){
-        let producto = {
-            id: productos.length + 1,
-            timestamp: Date.now(),
-            title: req.body.title,
-            description: req.body.description,
-            code: req.body.code,
-            price: req.body.price,
-            thumbnail: req.body.thumbnail,
-            stock: req.body.stock
-        }
-        try {
-            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-            data = JSON.parse(data)
-            console.log(data)
-            let id = data.length;
-            producto.id = id;
-            productos.push(producto);
-            console.log(producto);
-            data.push(producto)
-            fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-            res.redirect('/')
-        } catch (error) {
-            console.error(`Ha ocurrido un error inesperado: ${error}`)
-        }
-    }else{
-        res.send(`Esta accion esta solo permitida para administradores`)
-    }
+    case 3:
+        res.send(`DISCONNECTING`)
+    break;
+
+    default:
+        break;
+}
 })
 
-//PROD EDICION    
-prods.put('/:id:admin', (req, res) => {
-    const admin = parseInt(req.params.admin)
-    if(admin){
-        const id = parseInt(req.params.id)
-        if(isNaN(id)){res.send({error: 'El parametro ingresado no es un numero'})}
-        try {
-            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-            data = JSON.parse(data)
-            if(id > data.length){res.send({error: 'El parametro ingresado esta fuera de rango'})}
-            data[id].title = req.body.title;
-            data[id].description = req.body.description;
-            data[id].code = req.body.code;
-            data[id].price = req.body.price;
-            data[id].thumnail = req.body.thumnail;
-            data[id].stock = req.body.stock;
-            fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-            console.log(`Producto de id ${id} actualizado con exito`)
-            //mongo
-            const prodMongo = new model.productos(data)
-            let prodSave = await prodMongo.save()
-            console.log(prodSave)
-            res.redirect('/')
-        } catch (error) {
-            console.error(`Ha ocurrido un error inesperado: ${error}`)
-        }
-    }else{
-        res.send(`Esta accion esta solo permitida para administradores`)
+//cart route
+app.use('/api/cart', cart)
+
+cart.post('/addtocart', (req, res) => {
+    console.log(sessions.user)
+    console.log(req.body)
+    let addingItem = {
+        email: sessions.user,
+        producto: req.body.producto,
+        precio: req.body.precio
     }
+    const pusher2 = new carts(addingItem)
+    pusher2.save();
+    res.status("200")
 })
 
-//PROD DELETE
-prods.delete('/:id:admin', (req, res) => {
-    const admin = parseInt(req.params.admin)
-    if(admin){
-        try {
-            const id = parseInt(req.params.id)
-            let data = fs.readFileSync('./storage/productos.json', 'utf-8')
-            data = JSON.parse(data)
-            if(id > data.length){res.send(`No existe tal id en productos`)}
-            else{
-                data = data.filter(data => data.id != id)
-                fs.promises.writeFile('./storage/productos.json', JSON.stringify(data, null, 2))
-                console.log(`Producto eliminado con exito`)
-                res.redirect('/')
-            }
-        } catch (error) {
-            console.error(`Ha ocurrido un error inesperado: ${error}`)
-        }
-    }else{
-        res.send(`Esta accion esta solo permitida para administradores`)
-    }
-    
-})
+cart.get('/cartsender', (req, res) => {
 
-//-----CARRITO ROUTE
-app.use('/api/carrito', cart);
-let carros = []
-
-//CREACION DE NUEVO CART
-cart.post('/', (req, res) => {
-    let carro = {
-        id: carros.length + 1,
-        timestamp: Date.now(),
-        prods: []
-    }
-    try {
-        let data = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        data = JSON.parse(data)
-        let id = data.length;
-        carro.id = id
-        carro.prods = []
-        data.push(carro);
-        console.log(carro);
-        fs.promises.writeFile('./storage/carritos.json', JSON.stringify(data, null, 2))
-        //firebase
-        const db = admin.firestore()
-        const query = db.collection('carro')
-        doc = query.doc(`${id}`)
-        await doc.create(carro)
-        res.redirect('/')
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
-})
-
-//DELETE WHOLE CART
-cart.delete('/:id', (req, res) => {
-    try {
-        const id = parseInt(req.params.id)
-        let data = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        data = JSON.parse(data)
-        if(id > data.length){res.send(`No existe tal id de carro`)}else{
-            data = data.filter(data => data.id != id)
-            fs.promises.writeFile('./storage/carritos.json', JSON.stringify(data, null, 2))
-            console.log(`Producto eliminado con exito`)
-            res.redirect('/')
-        }
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
-})
-
-//GET PRODS FROM CART
-cart.get('/:id/productos', (req, res) => {
-    try {
-        const id = parseInt(req.params.id)
-        let data = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        data = JSON.parse(data)
-        if(id > data.length){res.send(`El ID ingresado se encuentra fuera de rango`)}
-        else{
-            res.json(data[id].prods)
-        }
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
-})
-
-//ADD PRODS TO SPECIFIC CART
-cart.post('/:id/productos/:id_prod' , (res, req) => {
-    try {
-        const id = parseInt(req.params.id)
-        const id_prod = parseInt(req.params.id_prod)
-        let carts = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        carts = JSON.parse(carts)
-        let prods = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        prods = JSON.parse(prods)
-        if(id > carts.length || id_prod > prods.length){res.send(`Uno de los parametros esta fuera de rango`)}
-        else{
-            carts[id].prods.push(id_prod)
-            console.log(`Producto agregado con exito`)
-            res.json(carts[id])
-        }
-    } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
-    }
-})
-
-//DELETE PRODS FROM CART
-cart.delete('/:id/productos/:id_prod', (res, req) => {
-    try {
-        const id = parseInt(req.params.id)
-        const id_prod = parseInt(req.params.id_prod)
-        let carts = fs.readFileSync('./storage/carritos.json', 'utf-8')
-        carts = JSON.parse(carts)
-        if(id > carts.length || !carts.some(id_prod)){res.send(`Uno de los parametros esta fuera de rango`)}
-        else{
-            let newprods = []
-            for (let index = 0; index < carts[id].prods.length; index++) {
-                if(carts[id].prods[index] != id_prod){
-                    newprods.push(carts[id].prods[index])
+    carts.find({email: sessions.user}, function(err, docs){
+            if(err){
+                console.log(err)
+            }else{
+                const mailOptions = {
+                    from: 'server node',
+                    to: 'plopezslevin@gmail.com',
+                    subject: 'Mail de prueba',
+                    html: `
+                    <h1>Productos</h1>
+                    ${docs.producto}
+                    <h1>Precios</h1>
+                    ${docs.precios}`
+                }
+                try {
+                    const info = transporter.sendMail(mailOptions)
+                } catch (error) {
+                    loggerError.error(`Ha ocurrido un error al enviar el mail de carrito: ${error}`)
                 }
             }
-            carts[id].prods = newprods;
-        }
+        })
+    
+    
+     res.send(console.log(result))
+})
+
+//authentication route
+app.use('/api/auth', auth)
+
+auth.post('/register', (req, res) => {
+ let newuser = {
+    email: req.body.email,
+    password: md5(req.body.password),
+    nombre: req.body.nombre,
+    direccion: req.body.direccion,
+    edad: req.body.edad,
+    telefono: req.body.telefono
+ }
+ const pusher = new users(newuser)
+ pusher.save();
+ res.redirect('/ecommerce')
+
+})
+
+auth.post('/login', passport.authenticate('local', { failureRedirect: '/register'}) ,(req, res) => {
+    try {        
+        sessions = req.session;
+        sessions.user = req.body.username;
+        loggerInfo.info(`Secret inicializada con exito ${req.session.user}`)
+        res.redirect('/ecommerce')
     } catch (error) {
-        console.error(`Ha ocurrido un error inesperado: ${error}`)
+        loggerError.error(`ha ocurrido un error con el login y su activacion de session: ${error}`)
     }
 })
 
-/*
-//----------------------------Sockets----------------------------
-const mensajes = []
-
-io.on('connection', socket => {
-    console.log('user connection established successfully')
-
-    // Envio los mensajes al cliente que se conectó 
-    socket.emit('mensajes', mensajes)
-
-    // Escucho los mensajes enviado por el cliente y se los propago a todos 
-    socket.on('mensaje', data => {
-        mensajes.push({ email: data, mensaje: data })
-        io.sockets.emit('mensajes', mensajes)
-    })
-
-    socket.emit('productos', productos)
-
-    socket.on('productos', data => {
-        productos.push({title: data, price: data, thumbnail: data})
-        io.sockets.emit('productos', productos)
-    })
+auth.post('/logout', (req, res) => {
+    try {
+        loggerInfo.info(`destruyendo session de ${sessions.user}`)
+        req.session.destroy
+        res.redirect('/login')
+    } catch (error) {
+        loggerError.error(`Ha ocurrido un error para eliminar la session: ${error}`)
+    }
 })
-*/
 
 //----------------------------SERVER----------------------------
 const PORT = 8080;
