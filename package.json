@@ -1,5 +1,6 @@
 {
   "name": "pb-28220",
+  "type": "module",
   "description": "Repositorio para la cursada de programacion backend camada 28220",
   "version": "1.0.0",
   "main": "server.js",
