@@ -10,12 +10,34 @@ import sessions from './server.js'
 
 
 //----------------------------Mongo DB----------------------------
-//conect with mongodb 
-try {
-    mongoose.connect('mongodb+srv://pbadmin:pbpassword@pb-28220.5wbn1.mongodb.net/PB-28220?retryWrites=true&w=majority')
-} catch (error) {
-    loggerError.error(` BBDD ||Ha ocurrido un error al conectar con la base de datos  || ${error}`)
+//conect with mongodb DAO
+class MongoClient{
+  constructor(){
+    super()
+    this.connected= false;
+    this.client= mongoose;
+  }
+
+  async connect(){
+    try {
+      this.client.connect('mongodb+srv://pbadmin:pbpassword@pb-28220.5wbn1.mongodb.net/PB-28220?retryWrites=true&w=majority')
+      this.connect = true
+  } catch (error) {
+      loggerError.error(` BBDD ||Ha ocurrido un error al conectar con la base de datos  || ${error}`)
+  }
+  }
+
+  async save(data){
+    try {
+      data.save()
+    } catch (error) {
+      return error;
+    }
+  }
+
 }
+
+MongoClient.connect()
 
 //SCHEMAS
 const userSchema = new Schema ({email: String, password: String, nombre: String, edad: Number, telefono: Number })
@@ -27,6 +49,7 @@ userSchema.path('_id');
 //MODELS
 const users = mongoose.model('users', userSchema)
 const carts = mongoose.model('carts', cartSchema)
+
 
 //----------------------------Passport-local----------------------------
 passport.use(new LocalStrategy(
@@ -53,7 +76,7 @@ passport.use(new LocalStrategy(
 let addToCart = (obj) => {
     try {
         const pusher2 = new carts(obj)
-        pusher2.save();
+        MongoClient.save(pusher2)
         return true;
     } catch (error) {
         return error;
@@ -63,7 +86,7 @@ let addToCart = (obj) => {
 let newUser = (data) => {
     try {
         const pusher = new users(data)
-        pusher.save();
+        MongoClient.save(pusher)
         return true;
     } catch (error) {
         return error;
