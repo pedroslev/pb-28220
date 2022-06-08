@@ -1,0 +1,10 @@
+.main{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+body{
+    background-color: grey;
+    background: grey;
+}

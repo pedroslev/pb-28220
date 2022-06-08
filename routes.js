@@ -1,7 +1,7 @@
 //Router
 import { Router } from 'express'
 //gmail
-import nodemailer from 'nodemailer'
+import nodemailer, { getTestMessageUrl } from 'nodemailer'
 //import SendmailTransport from 'nodemailer/lib/sendmail-transport';
 
 import {passport} from './persistence.js';
@@ -32,7 +32,7 @@ const loggerError = log4js.getLogger('err')
 
 //IMPORTS
 import { mailingSender } from './controllers.js';
-import {addToCart} from './persistence.js';
+import {addToCart, getTest, modInsertTest, deleteTest} from './persistence.js';
 import {getDBState} from './service.js'
 
 //INGRESAR SU MAIL PARA PROBAR.
@@ -50,17 +50,55 @@ const transporter = nodemailer.createTransport({
 
 //routes
 const auth = new Router();
+const test = new Router();
 const statusApp = new Router();
 const cart = new Router();
 export{
     statusApp,
     cart,
     auth,
+    test,
 }
 
 statusApp.get('/dbconnection', (req, res) => {
 let status = getDBState(mongoose.connection.readyState);
 res.send(status)
+})
+
+test.get('', (req, res) => {
+    try {
+        let result = getTest()
+        res.send(result)
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+test.post('/modify' ,(req, res) => {
+    let value = req.body.value
+    try {
+        modInsertTest(value)
+        res.send(200)
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+test.post('/insert' ,(req, res) => {
+    let value = req.body.value
+    try {
+        modInsertTest(value)
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+test.post('/delete' ,(req, res) => {
+    try {
+        deleteTest()
+    } catch (error) {
+        console.error(error)
+    }
 })
 
 

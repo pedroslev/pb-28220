@@ -13,7 +13,7 @@ import sessions from './server.js'
 //conect with mongodb DAO
 class MongoClient{
   constructor(){
-    super()
+    //super()
     this.connected= false;
     this.client= mongoose;
   }
@@ -36,8 +36,9 @@ class MongoClient{
   }
 
 }
+let mongoconeccion = new MongoClient
 
-MongoClient.connect()
+mongoconeccion.connect()
 
 //SCHEMAS
 const userSchema = new Schema ({email: String, password: String, nombre: String, edad: Number, telefono: Number })
@@ -46,9 +47,13 @@ userSchema.path('_id');
 const cartSchema = new Schema ({email: String, producto: String, precio: String})
 userSchema.path('_id');
 
+const testSchema = new Schema ({value: String})
+testSchema.path('_id')
+
 //MODELS
 const users = mongoose.model('users', userSchema)
 const carts = mongoose.model('carts', cartSchema)
+const tests = mongoose.model('tests', testSchema)
 
 
 //----------------------------Passport-local----------------------------
@@ -76,7 +81,7 @@ passport.use(new LocalStrategy(
 let addToCart = (obj) => {
     try {
         const pusher2 = new carts(obj)
-        MongoClient.save(pusher2)
+        pusher2.save(pusher2)
         return true;
     } catch (error) {
         return error;
@@ -86,15 +91,39 @@ let addToCart = (obj) => {
 let newUser = (data) => {
     try {
         const pusher = new users(data)
-        MongoClient.save(pusher)
+        pusher.save(pusher)
         return true;
     } catch (error) {
         return error;
     }
 }
 
+let getTest = () => {
+  try {
+    let result = tests.find();
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+let modInsertTest = (value) => {
+  let prev = tests.find();
+  tests.delete(prev._id)
+  let newvalue = new tests(value)
+  newvalue.save();
+}
+
+let deleteTest = () => {
+  let prev = tests.find();
+  tests.delete(prev._id)
+}
+
+
 export{
     newUser,
     addToCart,
     passport,
+    deleteTest,
+    modInsertTest,
+    getTest
 }

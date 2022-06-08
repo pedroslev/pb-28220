@@ -3,7 +3,7 @@
 import express from 'express'
 
 //routers
-import { statusApp, cart, auth } from './routes.js'
+import { statusApp, cart, auth, test } from './routes.js'
 import md5 from 'blueimp-md5';
 
 //parser
@@ -41,6 +41,7 @@ app.use('/api/status', statusApp)
 app.use('/api/cart', cart)
 //authentication route
 app.use('/api/auth', auth)
+app.use('/api/test/', test)
 
 
 //----------------------------SERVER----------------------------
