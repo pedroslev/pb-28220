@@ -8,6 +8,10 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local'
 import sessions from './server.js'
 
+import { graphqlHTTP } from 'express-graphql'
+import { buildSchema } from 'graphql'
+import crypto from 'crypto';
+
 
 //----------------------------Mongo DB----------------------------
 //conect with mongodb DAO
@@ -77,6 +81,63 @@ passport.use(new LocalStrategy(
 
 
 
+//----------------------------GraphQL----------------------------
+const schema = buildSchema(`
+
+type Number {
+  id: ID!
+  value: Int
+}
+
+input value {
+  value: Int
+}
+
+type Query{
+  insertValue(value: value): Number,
+  getValue(id: ID!): Number
+}
+
+type Mutation {
+  modifyValue(datos: value): Number,
+  deleteValue(): value
+}
+`)
+
+class Number{
+  constructor(id, value)
+}
+
+const valueMap = 0;
+
+function getValue(){
+  try {
+    let result = tests.find();
+    return result;
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function modifyValue(value){
+  let prev = tests.find();
+  tests.delete(prev._id)
+  let newvalue = new tests(value)
+  newvalue.save();
+}
+
+function insertValue(value){
+  let prev = tests.find();
+  tests.delete(prev._id)
+  let newvalue = new tests(value)
+  newvalue.save();
+}
+
+function deleteValue(){
+  let prev = tests.find();
+  tests.delete(prev._id)
+}
+
 //----------------------------FUNCTIONS----------------------------
 let addToCart = (obj) => {
     try {
@@ -101,6 +162,7 @@ let newUser = (data) => {
 let getTest = () => {
   try {
     let result = tests.find();
+    return result;
   } catch (error) {
     console.error(error)
   }
@@ -125,5 +187,10 @@ export{
     passport,
     deleteTest,
     modInsertTest,
-    getTest
+    getTest,
+    deleteValue,
+    insertValue,
+    modifyValue,
+    getValue,
+    graphqlHTTP
 }

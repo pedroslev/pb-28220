@@ -51,6 +51,7 @@ const transporter = nodemailer.createTransport({
 //routes
 const auth = new Router();
 const test = new Router();
+const graphql = new Router();
 const statusApp = new Router();
 const cart = new Router();
 export{
@@ -58,6 +59,7 @@ export{
     cart,
     auth,
     test,
+    graphql,
 }
 
 statusApp.get('/dbconnection', (req, res) => {

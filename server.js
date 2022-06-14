@@ -3,12 +3,14 @@
 import express from 'express'
 
 //routers
-import { statusApp, cart, auth, test } from './routes.js'
+import { statusApp, cart, auth, test, graphql } from './routes.js'
 import md5 from 'blueimp-md5';
 
 //parser
 import bodyParser from 'body-parser';
 
+//graph
+import {getValue, modifyValue, deleteValue, insertValue} from './persistence.js'
 //instancia express
 const app = express();
 
@@ -16,6 +18,7 @@ const app = express();
 //sessiones
 import session from 'express-session'
 import { Cookie } from 'express-session';
+import { graphqlHTTP } from 'express-graphql';
 
 //sessions
 app.use(session({
@@ -42,6 +45,16 @@ app.use('/api/cart', cart)
 //authentication route
 app.use('/api/auth', auth)
 app.use('/api/test/', test)
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    rootValue: {
+        getValue,
+        modifyValue,
+        deleteValue,
+        insertValue
+    },
+    graphiql: true,
+}));
 
 
 //----------------------------SERVER----------------------------
