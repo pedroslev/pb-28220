@@ -1,6 +1,14 @@
-let getDBState = (conn) => {
+const Router = require('koa-router')
+const mongo = require('./persistance.js')
 
-    switch (conn) {
+const router = new Router({
+    prefix: '/api/status'
+})
+
+
+router.get('/status', ctx => {
+
+    switch (mongo.connection) {
         case 0:
             return(`DISCONNECTED`)
         break;
@@ -20,8 +28,4 @@ let getDBState = (conn) => {
         default:
             break;
     }
-}
-
-export {
-    getDBState
-}
+})
