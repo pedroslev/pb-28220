@@ -1,0 +1,16 @@
+.main{
+    display: flex;
+    justify-content: center;
+    margin-top: 10em;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title{
+    font-family: 'Finlandica', sans-serif;
+    margin-bottom: 1em;
+}
+
+body{
+    background-color: #a6a2a2;
+}
