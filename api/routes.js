@@ -1,15 +1,19 @@
 //Router
 import { Router } from 'express'
 //gmail
-import nodemailer from 'nodemailer'
+//import nodemailer from 'nodemailer'
+import mongoose from 'mongoose';
 //import SendmailTransport from 'nodemailer/lib/sendmail-transport';
 
-import {passport} from './persistence.js';
+import { newUser } from './persistence.js';
+
+import { passport } from './server.js';
 
 //IMPORTS
-import { mailingSender } from './controllers.js';
+//import { mailingSender } from './controllers.js';
 import {getDBState} from './service.js'
 
+/*
 //INGRESAR SU MAIL PARA PROBAR.
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -19,7 +23,7 @@ const transporter = nodemailer.createTransport({
         pass: 'password'
     }
  });
-
+*/
 
 //----------------------------RUTAS----------------------------
 
@@ -50,13 +54,45 @@ cart.get('/cartsender', (req, res) => {
 })
 
 
-auth.post('/register', (req, res) => {
- 
-
+auth.get('/' , (req, res) => {
+    res.send(req.user)
 })
 
-auth.post('/login', passport.authenticate('local', { failureRedirect: '/login'}) ,(req, res) => {
 
+auth.post('/register', (req, res) => {
+ let data = {
+    email: req.body.email,
+    password: req.body.password
+ }
+
+ try {
+    let push = newUser(data)
+    if(push){
+        res.send(true)
+    }else{
+        res.send(false)
+    }
+ } catch (error) {
+    console.error(error)
+    res.send(false)
+ }
+
+ 
+})
+
+auth.post('/login', (req, res, next) => {
+
+    passport.authenticate("local", (err, user, info) => {
+        //if (err) throw err;
+        if (!user) res.send(404, "No User Exists");
+        else {
+          req.logIn(user, (err) => {
+            if (err) throw err;
+            //res.send("Successfully Authenticated");
+            res.redirect(200, 'http://localhost:3000/consola')
+          });
+        }
+      })(req, res, next);
 })
 
 auth.post('/logout', (req, res) => {
