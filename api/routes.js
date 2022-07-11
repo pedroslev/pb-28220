@@ -3,9 +3,10 @@ import { Router } from 'express'
 //gmail
 //import nodemailer from 'nodemailer'
 import mongoose from 'mongoose';
+
 //import SendmailTransport from 'nodemailer/lib/sendmail-transport';
 
-import { newUser } from './persistence.js';
+import { newUser, addCategory, categories, newProd, products, addToCart, carts} from './persistence.js';
 
 import { passport } from './server.js';
 
@@ -46,14 +47,51 @@ res.send(status)
 
 
 cart.post('/addtocart', (req, res) => {
+let push = addToCart(req.body)
+res.send(push)
+})
 
+cart.get('/', async (req, res) =>{
+    let result = await carts.find({email: req.user.email})
+    res.send(result)
+    
+    
 })
 
 cart.get('/cartsender', (req, res) => {
 
 })
+//------------------PRODUCTS
 
+prods.post('/category', (req, res) => {
+    let push = addCategory(req.body)
+    if(push){res.send(true)}
+    else{res.send(false)}
+})
 
+prods.get('/category', (req, res) => {
+    categories.find()
+    .then((result)=> {
+        let cataux = []
+        for (let index = 0; index < result.length; index++) {
+            cataux.push(result[index].categoria)
+        }
+        res.send(cataux)
+    })
+})
+
+prods.post('/', (req, res) => {
+    newProd(req.body)
+})
+
+prods.get('/', (req, res) => {
+    products.find({})
+    .then((result) => {
+        res.send(result)
+    })
+})
+
+//------------------ATHENTICATION
 auth.get('/' , (req, res) => {
     res.send(req.user)
 })
@@ -96,5 +134,10 @@ auth.post('/login', (req, res, next) => {
 })
 
 auth.post('/logout', (req, res) => {
-
+    try {
+        req.session.destroy()    
+        res.send(true)
+    } catch (error) {
+        res.send(false)
+    }
 })

@@ -9,8 +9,14 @@ import CategoryCreator from '../../components/categoryCreator/categoryCreator.js
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 
 function consola() {
-axios.get('/api/auth')
-.then((response) => {console.log(response)})
+  axios({
+    method: "GET",
+    withCredentials: true,
+    url: "/auth",
+  })
+.then((response) => {
+if(response.data.email === undefined){window.location.href= '/login'}
+})
 
   
   return (

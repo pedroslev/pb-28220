@@ -1,7 +1,24 @@
 import React from 'react'
 import { Container , Stack , Form , Col , Button } from 'react-bootstrap'
+import axios from 'axios'
 
-function categoryCreator() {
+function CategoryCreator() {
+
+  const [pushCat, setpushCat] = React.useState('')
+
+  let addCategory = (name) => {
+    let data = {categoria: name}
+    try {
+      axios.post(`/prods/category`, data)
+      .then((res) => {
+        if(res){setpushCat('Categoria agregada con exito')}
+        else{setpushCat('Categoria repetida, no se ha agregado')}
+      })
+    } catch (error) {
+      console.error(`ha ocurrido un error en function register: ${error}`)
+    }
+  }
+
   return (
     <Container className='general' fluid>
     <Container className='mt-3' fluid>
@@ -13,15 +30,16 @@ function categoryCreator() {
   <div className='prodForm'>
     <Form noValidate >
           <Col className="mb-3">
-            <Form.Group as={Col} md={true} controlId="formGridName">
+            <Form.Group as={Col} md={true} >
               <Form.Label>Nombre</Form.Label>
-              <Form.Control type="name" placeholder="Nombre de la categoria" required autocomplete="off"/>
+              <Form.Control type="name" placeholder="Nombre de la categoria" id='categoria' required autocomplete="off"/>
               <Form.Control.Feedback type="invalid">
                 Ingrese un nombre válido
               </Form.Control.Feedback>
             </Form.Group>
+            <p>{pushCat}</p>
 
-          <Button variant="success" type="submit" className='mt-4'>
+          <Button variant="success" type="button" onClick={() => {addCategory(document.getElementById('categoria').value)}} className='mt-4'>
             Agregar Categoria
           </Button>
           </Col>
@@ -32,4 +50,4 @@ function categoryCreator() {
   )
 }
 
-export default categoryCreator
+export default CategoryCreator

@@ -22,10 +22,11 @@ function login() {
           username: user,
           password: md5(pwd),
         },
+        withCredentials: true,
         url: "/auth/login"})
         .then((response) => {
           if(response.status === 200){
-            window.location.href = '/consola'
+            window.location.href = '/'
           }
         })
       } catch (error) {

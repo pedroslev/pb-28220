@@ -21,7 +21,12 @@ import bodyParser from 'body-parser';
 
 //instancia express
 const app = express();
-app.use(cors('enable'))
+app.use(
+  cors({
+    origin: "http://localhost:3000", // <-- location of the react app were connecting to
+    credentials: true,
+  })
+);
 
 //----------------------------Middlewares----------------------------
 app.use(bodyParser.urlencoded({extended: true}))

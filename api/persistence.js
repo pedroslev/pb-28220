@@ -17,13 +17,20 @@ dbConex();
 const userSchema = new Schema ({email: String, password: String, nombre: String, edad: Number, telefono: Number })
 userSchema.path('_id');
 
-const cartSchema = new Schema ({email: String, producto: String, precio: String})
+const prodSchema = new Schema({producto: String, categoria: String, imagen: String, price: Number})
+prodSchema.path('_id');
+
+const cartSchema = new Schema ({email: String, id: String, producto: String, price: Number, cantidad: Number})
 userSchema.path('_id');
+
+const categorySchema = new Schema({categoria: String})
+categorySchema.path('_id');
 
 //----------MODELS
 const users = mongoose.model('users', userSchema)
 const carts = mongoose.model('carts', cartSchema)
-
+const categories = mongoose.model('categories', categorySchema)
+const products = mongoose.model('products', prodSchema)
 
 
 
@@ -35,6 +42,32 @@ let addToCart = (obj) => {
         return true;
     } catch (error) {
         return error;
+    }
+}
+
+
+let addCategory = (cat) => {
+    try {
+        categories.findOne({categoria: cat.categoria})
+        .then((response) => {
+            if(!response){
+                const pusher = new categories(cat)
+                pusher.save()
+                return true
+            }
+        })
+    } catch (error) {
+        return error
+    }
+}
+
+let newProd = (obj) => {
+    try {
+        const pusher = new products(obj)
+        pusher.save();
+        return true;
+    } catch (error) {
+        return false;
     }
 }
 
@@ -59,4 +92,8 @@ export{
     addToCart,
     carts,
     users,
+    addCategory,
+    categories,
+    products,
+    newProd,
 }
