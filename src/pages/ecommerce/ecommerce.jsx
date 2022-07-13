@@ -36,7 +36,7 @@ if(response.data.email === undefined){window.location.href= '/login'}
   return (
     <div>
         <NavbarEcom />
-        <div class="prodmain">
+        <div className="prodmain">
         {
         Object.values(prods).map((item) => {
           return <div className='products'>

@@ -55,7 +55,7 @@ function ProductCreator() {
             <Col className="mb-3">
               <Form.Group as={Col} md={true} >
                 <Form.Label>Nombre</Form.Label>
-                <Form.Control type="name" placeholder="Nombre de producto" onChange={(e) => setProd(e.target.value)} id='prod' required autocomplete="off"/>
+                <Form.Control type="name" placeholder="Nombre de producto" onChange={(e) => setProd(e.target.value)} id='prod' required/>
                 <Form.Control.Feedback type="invalid">
                   Ingrese un nombre válido
                 </Form.Control.Feedback>
@@ -78,7 +78,7 @@ function ProductCreator() {
 
               <Form.Group as={Col} md={true} >
                 <Form.Label>Imagen</Form.Label>
-                <Form.Control type="name" placeholder="URL IMG" id='img' onChange={(e) => setImg(e.target.value)} required autocomplete="off"/>
+                <Form.Control type="name" placeholder="URL IMG" id='img' onChange={(e) => setImg(e.target.value)} required />
                 <Form.Control.Feedback type="invalid">
                   Ingrese un nombre válido
                 </Form.Control.Feedback>
@@ -88,7 +88,7 @@ function ProductCreator() {
                 <Form.Label>Precio</Form.Label>
                 <InputGroup>
                   <InputGroup.Text>$</InputGroup.Text>
-                  <FormControl min='1' type="number" id='price' onChange={(e) => setPrice(e.target.value)} required autocomplete="off" placeholder="000" />
+                  <FormControl min='1' type="number" id='price' onChange={(e) => setPrice(e.target.value)} required  placeholder="000" />
                   <Form.Control.Feedback type="invalid">
                   Ingrese un precio válido
                 </Form.Control.Feedback>

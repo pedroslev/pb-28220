@@ -10,10 +10,20 @@ function Cart(props) {
 
 let removeCart = (id, user) => {
 console.log(id, user)
+axios({
+  method: "DELETE",
+  withCredentials: true,
+  url: `/cart/${user}/${id}`,
+})
+.then((response) => {
+  console.log(response.data)
+  window.location.reload()
+})
 }
 
   return (
     <Modal
+    id='modal'
       {...props}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
@@ -21,7 +31,7 @@ console.log(id, user)
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          Modal heading
+          Carrito
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

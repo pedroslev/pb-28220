@@ -32,7 +32,7 @@ function CategoryCreator() {
           <Col className="mb-3">
             <Form.Group as={Col} md={true} >
               <Form.Label>Nombre</Form.Label>
-              <Form.Control type="name" placeholder="Nombre de la categoria" id='categoria' required autocomplete="off"/>
+              <Form.Control type="name" placeholder="Nombre de la categoria" id='categoria' required/>
               <Form.Control.Feedback type="invalid">
                 Ingrese un nombre válido
               </Form.Control.Feedback>

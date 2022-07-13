@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 //import SendmailTransport from 'nodemailer/lib/sendmail-transport';
 
-import { newUser, addCategory, categories, newProd, products, addToCart, carts} from './persistence.js';
+import { newUser, addCategory, categories, newProd, products, removeFromCart, addToCart, carts, deleteFromProds} from './persistence.js';
 
 import { passport } from './server.js';
 
@@ -40,12 +40,13 @@ export{
     prods,
 }
 
+//------------------STATUS GENERIC
 statusApp.get('/dbconnection', (req, res) => {
 let status = getDBState(mongoose.connection.readyState);
 res.send(status)
 })
 
-
+//------------------CART
 cart.post('/addtocart', (req, res) => {
 let push = addToCart(req.body)
 res.send(push)
@@ -53,10 +54,17 @@ res.send(push)
 
 cart.get('/', async (req, res) =>{
     let result = await carts.find({email: req.user.email})
-    res.send(result)
-    
-    
+    res.send(result)    
 })
+
+cart.delete('/:user/:id', (req, res) => {
+    const idprod = req.params.id
+    const user = req.params.user
+    let deleted = removeFromCart(idprod, user)
+    if(deleted){res.send(true)}
+    else{res.send(false)}
+})
+
 
 cart.get('/cartsender', (req, res) => {
 
@@ -89,6 +97,17 @@ prods.get('/', (req, res) => {
     .then((result) => {
         res.send(result)
     })
+})
+
+prods.put('/modify', (req,res) => {
+    console.log(req.body)
+})
+
+prods.delete('/delete/:id', (req, res) => {
+    const idprod = req.params.id
+    let deleted = deleteFromProds(idprod)
+    if(deleted){res.send(true)}
+    else{res.send(false)}
 })
 
 //------------------ATHENTICATION

@@ -5,6 +5,7 @@ import axios from 'axios'
 import NavbarConsole from '../../components/navbarConsole/navbarConsole.jsx'
 import ProductCreator from '../../components/productCreator/productCreator.jsx';
 import CategoryCreator from '../../components/categoryCreator/categoryCreator.jsx'
+import ProductModifier from '../../components/productModifier/Modifier.jsx';
 
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 
@@ -24,6 +25,7 @@ if(response.data.email === undefined){window.location.href= '/login'}
         <NavbarConsole />
         <ProductCreator />
         <CategoryCreator />
+        <ProductModifier />
     </div>
   )
 }

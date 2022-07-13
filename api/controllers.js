@@ -12,9 +12,7 @@ let mailingSender = (msj) => {
     } catch (error) {
         return error;
     }
-
 }
-
 
 export{
     mailingSender,

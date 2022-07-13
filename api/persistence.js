@@ -45,6 +45,27 @@ let addToCart = (obj) => {
     }
 }
 
+let removeFromCart = (idprod, user) => {
+    try {
+        carts.deleteOne({email: user, id: idprod})
+        .then((response) => {
+            return response.acknowledged
+        })
+    } catch (error) {
+        return false
+    }
+}
+
+let deleteFromProds = (id) => {
+    try {
+        products.deleteOne({ _id: id})
+        .then((resp) => {
+            return resp.acknowledged
+        })
+    } catch (error) {
+        return false
+    }
+}
 
 let addCategory = (cat) => {
     try {
@@ -96,4 +117,6 @@ export{
     categories,
     products,
     newProd,
+    removeFromCart,
+    deleteFromProds,
 }
