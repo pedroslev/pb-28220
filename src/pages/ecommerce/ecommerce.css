@@ -1,0 +1,12 @@
+.products{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 1em;
+}
+
+.prodmain{
+    display: flex;
+    flex-direction: row;
+}

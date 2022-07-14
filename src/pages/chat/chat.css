@@ -1,0 +1,29 @@
+.totalum{
+    position: fixed;
+    bottom: 1em;
+    width: 100%;
+}
+
+.segment{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0px;
+}
+
+.input{
+    width: 90%;
+    margin-left: 1em;
+    display: flex;
+    padding: 0px;
+}
+
+.message{
+    width: 100%;
+}
+
+.send{
+    position: fixed;
+    right: 2em;
+    padding: 0.4em;
+}
