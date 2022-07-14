@@ -1,30 +1,18 @@
 //Router
 import { Router } from 'express'
-//gmail
-//import nodemailer from 'nodemailer'
 import mongoose from 'mongoose';
 
 //import SendmailTransport from 'nodemailer/lib/sendmail-transport';
 
-import { newUser, addCategory, categories, newProd, products, removeFromCart, addToCart, carts, deleteFromProds} from './persistence.js';
+import { newUser, addCategory, categories, newProd, products, eraseCart, orders, removeFromCart, addToCart, carts, deleteFromProds, modifyDBProd} from './persistence.js';
 
 import { passport } from './server.js';
 
 //IMPORTS
-//import { mailingSender } from './controllers.js';
 import {getDBState} from './service.js'
 
-/*
-//INGRESAR SU MAIL PARA PROBAR.
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    port: 587,
-    auth: {
-        user: 'ingresarmail@gmail.com',
-        pass: 'password'
-    }
- });
-*/
+import {sendMail} from './controllers.js'
+
 
 //----------------------------RUTAS----------------------------
 
@@ -66,7 +54,23 @@ cart.delete('/:user/:id', (req, res) => {
 })
 
 
-cart.get('/cartsender', (req, res) => {
+cart.post('/order', (req, res) => {
+
+    orders.count()
+    .then((count) => {
+        let order = {
+            cart: req.body,
+            orderN: count,
+            timestamp: Date().toString(),
+            status: 'generada',
+            user: req.user.email}
+
+        const pusher = new orders(order)
+        pusher.save()
+        sendMail(req.user.email,'Compra',`Se ha registrado tu orden de compra N${count}`)
+        })
+        eraseCart(req.user.email)
+        res.send('orden generada')
 
 })
 //------------------PRODUCTS
@@ -99,8 +103,25 @@ prods.get('/', (req, res) => {
     })
 })
 
+prods.get('/:categoria', (req, res) => {
+    products.find({categoria: req.params.categoria})
+    .then((result) => {
+        res.send(result)
+    })
+})
+
+prods.get('/:_id', (req, res) => {
+    console.log(req.params._id)
+    products.findById(req.params._id)
+    .then((result) => {
+        res.send(result)
+    })
+})
+
 prods.put('/modify', (req,res) => {
-    console.log(req.body)
+    let mod = modifyDBProd(req.body)
+    res.send(mod);
+    
 })
 
 prods.delete('/delete/:id', (req, res) => {
@@ -125,6 +146,7 @@ auth.post('/register', (req, res) => {
  try {
     let push = newUser(data)
     if(push){
+        sendMail(data.email, 'registracion exitosa', 'Muchas gracias por registrarse en pb-28220!')
         res.send(true)
     }else{
         res.send(false)

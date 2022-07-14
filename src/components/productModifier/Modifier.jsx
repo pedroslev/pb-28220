@@ -84,17 +84,20 @@ function EditModal(props) {
         url: "/prods/category"})
         .then((res) => {
           setCategories(res.data)
-        })
+        })    
 
-
-    }, []);
+        setNewcategory('')
+        setNewprice('')
+        setNewimg('')
+        setNewprod('')
+    }, [props.onHide]);
 
     let modifyProd = (id, prod, cat, img, price) => {
-        
-    setNewprod(document.getElementById('newprod').value)
-    setNewcategory(document.getElementById('newcategoria').value)
-    setNewimg(document.getElementById('newimg').value)
-    setNewprice(document.getElementById('newprice').value)
+
+      if(prod === ''){prod=props.items.producto}
+      if(cat === ''){cat=props.items.categoria}
+      if(img === ''){img=props.items.imagen}
+      if(price === ''){price=props.items.price}
 
         let data = {
             _id: id,
@@ -103,16 +106,16 @@ function EditModal(props) {
             imagen: img,
             price: price
         }
-        console.log(data)
-        /*
+        
         axios({
             method: "PUT",
             withCredentials: true,
             url: "/prods/modify",
             data: data})
-            .then((resp) => {
-              console.log(resp)
-            })*/
+            .then(() => {
+                props.onHide(true)
+                window.location.reload()
+            })
     }
 
     let deleteProd = (id) => {
@@ -150,7 +153,7 @@ function EditModal(props) {
 
               <Form.Group as={Col} sm className="mb-3 mb-sm-0">
               <Form.Label>Categoria</Form.Label>
-                  <Form.Select id='newcategoria' onChange={(e) => {setNewcategory(e.target.selected)}} required>
+                  <Form.Select id='newcategoria' onChange={(e) => {setNewcategory(e.target.value)}} required>
                     <option key={props.items._id} >{props.items.categoria}</option>
                     {
                       categories.map((cat) => {

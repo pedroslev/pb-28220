@@ -8,8 +8,6 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local'
 
 
-
-
 //routers
 import { statusApp, cart, auth, prods } from './routes.js'
 

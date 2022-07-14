@@ -5,7 +5,9 @@ import Ecommerce from "./pages/ecommerce/ecommerce.jsx";
 import Login from './pages/auth/login.jsx'
 import Register from './pages/auth/register.jsx'
 import Consola from './pages/consola/consola.jsx'
+import Chat from './pages/chat/chat.jsx'
 import Error from './pages/error/error.jsx'
+import Success from './pages/orderGenerated/success.jsx'
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route exact path="register" element={<Register />} />
         <Route exact path="ecommerce" element={<Ecommerce />} />
         <Route exact path="consola" element={<Consola />} />
+        <Route exact path="chat" element={<Chat />} />
+        <Route path="success" element={<Success/>} />
         <Route path="*" element={<Error/>} />
       </Routes>
     </Router>

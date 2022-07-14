@@ -1,19 +1,26 @@
-//twilio wsp
-import twilio from 'twilio';
-const accountSid = 'ACab43a42c8bfe50cc060a39708b7eb173'
-const authToken = '510844147c45baf9111f450a438e2fde'
-const client = twilio(accountSid, authToken)
+import nodemailer from 'nodemailer'
+import dotenv from 'dotenv'
+dotenv.config()
 
-let mailingSender = (msj) => {
-
-    try {
-        client.messages.create(msj)
-        return true;
-    } catch (error) {
-        return error;
+//INGRESAR SU MAIL PARA PROBAR.
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    port: 587,
+    auth: {
+        user: process.env.MAIL,
+        pass: process.env.MAILPWD
     }
-}
+ });
 
-export{
-    mailingSender,
-}
+ let sendMail = async (user, subject, text) => {
+    await transporter.sendMail({
+        from: `no-reply@pb28820`,
+        to: user,
+        subject: subject,
+        text: text
+    })
+ }
+
+ export {
+    sendMail,
+ }

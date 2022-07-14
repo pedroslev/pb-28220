@@ -16,10 +16,27 @@ axios({
   url: `/cart/${user}/${id}`,
 })
 .then((response) => {
-  console.log(response.data)
   window.location.reload()
 })
 }
+
+let makeOrder = () => {
+
+  let data = {
+    cart: props.cartitems
+  }
+
+  axios({
+    method: "POST",
+    withCredentials: true,
+    url: `/cart/order`,
+    data: data
+  })
+  .then((response) => {
+    window.location.href('/success')
+  })
+  }
+
 
   return (
     <Modal
@@ -58,7 +75,7 @@ axios({
         </Table>
       </Modal.Body>
       <Modal.Footer>
-        <Button >Comprar</Button>
+        <Button onClick={() => {makeOrder()}}>Comprar</Button>
       </Modal.Footer>
     </Modal>
   )

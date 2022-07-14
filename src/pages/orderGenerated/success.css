@@ -1,0 +1,8 @@
+.success{
+    color: white;
+    padding-top: 10em;
+    padding-bottom: 10em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
