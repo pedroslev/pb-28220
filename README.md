@@ -1,4 +1,4 @@
-# ReactJS-16940-LopezSlevin
+# pb-28220-LopezSlevin
 
 
 <h1 align="center">Repositorio del curso de Programacion Backend de Coderhouse - Camada N28220</h1>
